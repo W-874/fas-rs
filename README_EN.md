@@ -5,6 +5,7 @@
 [![CI Build][ci-badge]][ci-url]
 [![Release][release-badge]][release-url]
 [![Download][download-badge]][download-url]
+[![Telegram][telegram-badge]][telegram-url]
 
 [readme-cn-badge]: https://img.shields.io/badge/README-简体中文-blue.svg?style=for-the-badge&logo=readme
 [readme-cn-url]: README.md
@@ -16,6 +17,8 @@
 [release-url]: https://github.com/shadow3aaa/fas-rs/releases/latest
 [download-badge]: https://img.shields.io/github/downloads/shadow3aaa/fas-rs/total?style=for-the-badge&logo=download
 [download-url]: https://github.com/shadow3aaa/fas-rs/releases/latest
+[telegram-badge]: https://img.shields.io/badge/Group-blue?style=for-the-badge&logo=telegram&label=Telegram
+[telegram-url]: https://t.me/fas_rs_official
 
 ## **Introduction**
 
@@ -62,7 +65,7 @@
     - Currently, `fas-rs` does not have an official switching mode manager, but is connected to the configuration interface of [`scene`](http://vtools.omarea.com). If you don’t use scene, the configuration of `balance` will be used by default.
     - If you have some understanding of programming on Linux, you can switch to the corresponding mode by writing any one of the 4 modes to the `/dev/fas_rs/mode` node, and at the same time, reading it can also know the current `fas-rs` mode
   - **Parameter Description:**
-    - margin(ms): Allowed frame drop margin. The smaller the value, the higher the frame rate, the larger the value, the more power is saved (0 < margin < 1000)
+    - margin(ms): Allowed frame drop margin. The smaller the value, the higher the frame rate, the larger the value, the more power is saved (0 <= margin < 1000)
 
 ### **`games.toml` configuration standard example:**
 
@@ -76,23 +79,25 @@ scene_game_list = true
 "com.miHoYo.Yuanshen" = [30, 60]
 "com.miHoYo.enterprise.NGHSoD" = [30, 60, 90]
 "com.miHoYo.hkrpg" = [30, 60]
-"com.mojang.minecraftpe" = [60, 120]
+"com.kurogame.mingchao" = [24, 30, 45, 60]
+"com.pwrd.hotta.laohu" = [25, 30, 45, 60, 90]
+"com.mojang.minecraftpe" = [60, 90, 120]
 "com.netease.party" = [30, 60]
 "com.shangyoo.neon" = 60
 "com.tencent.tmgp.pubgmhd" = [60, 90, 120]
 "com.tencent.tmgp.sgame" = [30, 60, 90, 120]
 
 [powersave]
-margin = 4
-
-[balance]
 margin = 3
 
-[performance]
+[balance]
 margin = 2
 
-[fast]
+[performance]
 margin = 1
+
+[fast]
+margin = 0
 ```
 
 ## **Configuration merge**

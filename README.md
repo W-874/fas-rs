@@ -5,6 +5,7 @@
 [![CI Build][ci-badge]][ci-url]
 [![Release][release-badge]][release-url]
 [![Download][download-badge]][download-url]
+[![Telegram][telegram-badge]][telegram-url]
 
 [readme-en-badge]: https://img.shields.io/badge/README-English-blue.svg?style=for-the-badge&logo=readme
 [readme-en-url]: README_EN.md
@@ -14,8 +15,10 @@
 [ci-url]: https://github.com/shadow3aaa/fas-rs/actions/workflows/ci.yml
 [release-badge]: https://img.shields.io/github/v/release/shadow3aaa/fas-rs?style=for-the-badge&logo=rust
 [release-url]: https://github.com/shadow3aaa/fas-rs/releases/latest
-[download-badge]: https://img.shields.io/github/downloads/shadow3aaa/fas-rs/total?style=for-the-badge&logo=download
+[download-badge]: https://img.shields.io/github/downloads/shadow3aaa/fas-rs/total?style=for-the-badge
 [download-url]: https://github.com/shadow3aaa/fas-rs/releases/latest
+[telegram-badge]: https://img.shields.io/badge/Group-blue?style=for-the-badge&logo=telegram&label=Telegram
+[telegram-url]: https://t.me/fas_rs_official
 
 ## **简介**
 
@@ -62,7 +65,7 @@
     - 目前`fas-rs`还没有官方的切换模式的管理器，而是接入了[`scene`](http://vtools.omarea.com)的配置接口，如果你不用 scene 则默认使用`balance`的配置
     - 如果你有在 linux 上编程的一些了解，向`/dev/fas_rs/mode`节点写入 4 模式中的任意一个即可切换到对应模式，同时读取它也可以知道现在`fas-rs`所处的模式
   - **模式参数说明:**
-    - margin(ms): 允许的掉帧余量，越小帧率越高，越大越省电(0 < margin < 1000)
+    - margin(ms): 允许的掉帧余量，越小帧率越高，越大越省电(0 <= margin < 1000)
 
 ### **`games.toml`配置标准例:**
 
@@ -76,23 +79,25 @@ scene_game_list = true
 "com.miHoYo.Yuanshen" = [30, 60]
 "com.miHoYo.enterprise.NGHSoD" = [30, 60, 90]
 "com.miHoYo.hkrpg" = [30, 60]
-"com.mojang.minecraftpe" = [60, 120]
+"com.kurogame.mingchao" = [24, 30, 45, 60]
+"com.pwrd.hotta.laohu" = [25, 30, 45, 60, 90]
+"com.mojang.minecraftpe" = [60, 90, 120]
 "com.netease.party" = [30, 60]
 "com.shangyoo.neon" = 60
 "com.tencent.tmgp.pubgmhd" = [60, 90, 120]
 "com.tencent.tmgp.sgame" = [30, 60, 90, 120]
 
 [powersave]
-margin = 4
-
-[balance]
 margin = 3
 
-[performance]
+[balance]
 margin = 2
 
-[fast]
+[performance]
 margin = 1
+
+[fast]
+margin = 0
 ```
 
 ## **配置合并**
