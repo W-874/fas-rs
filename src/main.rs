@@ -1,16 +1,19 @@
-// Copyright 2023 shadow3aaa@gitbub.com
+// Copyright 2023-2024, shadow3 (@shadow3aaa)
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// This file is part of fas-rs.
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// fas-rs is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// fas-rs is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along
+// with fas-rs. If not, see <https://www.gnu.org/licenses/>.
 
 #![deny(clippy::all, clippy::pedantic)]
 #![warn(clippy::nursery)]
@@ -23,7 +26,6 @@
 )]
 
 mod cpu_common;
-mod cpu_temp_watcher;
 mod file_handler;
 mod framework;
 mod misc;
@@ -38,7 +40,7 @@ use framework::prelude::*;
 
 use anyhow::Result;
 use flexi_logger::{DeferredNow, LogSpecification, Logger, Record};
-use log::{error, warn};
+use log::{error, info, warn};
 use mimalloc::MiMalloc;
 
 #[cfg(debug_assertions)]
@@ -65,7 +67,10 @@ fn main() -> Result<()> {
         return Ok(());
     } else if args[1] == "run" {
         setprop("fas-rs-server-started", "true");
-        run(&args[2]).unwrap_or_else(|e| error!("{e:#?}"));
+        run(&args[2]).unwrap_or_else(|e| {
+            error!("{e:#?}");
+            error!("{:#?}", e.backtrace());
+        });
     }
 
     Ok(())
@@ -82,6 +87,8 @@ fn run<S: AsRef<str>>(std_path: S) -> Result<()> {
         .log_to_stdout()
         .format(log_format)
         .start()?;
+
+    log_metainfo();
 
     let std_path = std_path.as_ref();
 
@@ -107,6 +114,29 @@ fn log_format(
     now: &mut DeferredNow,
     record: &Record<'_>,
 ) -> Result<(), io::Error> {
-    let time = now.format("%Y-%m-%d %H:%M");
+    let time = now.format("%Y-%m-%d %H:%M:%S");
     write!(write, "[{time}] {}: {}", record.level(), record.args())
+}
+
+fn log_metainfo() {
+    info!(
+        "fas-rs v{} {}, llvm-{}, rustc-{}, build by {} at {} on {},{},{}",
+        env!("CARGO_PKG_VERSION"),
+        build_type(),
+        env!("VERGEN_RUSTC_LLVM_VERSION"),
+        env!("VERGEN_RUSTC_SEMVER"),
+        env!("VERGEN_SYSINFO_USER"),
+        env!("VERGEN_BUILD_TIMESTAMP"),
+        env!("VERGEN_SYSINFO_NAME"),
+        env!("VERGEN_SYSINFO_OS_VERSION"),
+        env!("VERGEN_RUSTC_HOST_TRIPLE")
+    );
+}
+
+const fn build_type() -> &'static str {
+    if cfg!(debug_assertions) {
+        "debug"
+    } else {
+        "release"
+    }
 }

@@ -49,7 +49,7 @@
   - **scene_game_list**
 
     - 类型: `bool`
-    - `true`: 使用 scene 游戏列表
+    - `true`: 使用 scene 游戏列表 \*
     - `false`: 不使用 scene 游戏列表
 
   - `*`: 默认配置
@@ -63,11 +63,24 @@
 
 - ### **模式(`powersave` / `balance` / `performance` / `fast`)说明:**
 
-  - **mode:**
+  - #### **模式切换:**
+
     - 目前`fas-rs`还没有官方的切换模式的管理器，而是接入了[`scene`](http://vtools.omarea.com)的配置接口，如果你不用 scene 则默认使用`balance`的配置
     - 如果你有在 linux 上编程的一些了解，向`/dev/fas_rs/mode`节点写入 4 模式中的任意一个即可切换到对应模式，同时读取它也可以知道现在`fas-rs`所处的模式
-  - **模式参数说明:**
-    - margin(ms): 允许的掉帧余量，越小帧率越高，越大越省电(0 <= margin < 1000)
+
+  - #### **模式参数说明:**
+
+    - **margin:**
+
+      - 类型: `整数`
+      - 单位: `milliseconds`
+      - 允许的掉帧余量，越小帧率越高，越大越省电(0 <= margin < 1000)
+
+    - **core_temp_thresh:**
+
+      - 类型: `整数`或者`"disabled"`
+      - `整数`: 让`fas-rs`触发温控的核心温度(单位0.001℃)
+      - `"disabled"`: 关闭`fas-rs`内置温控
 
 ### **`games.toml`配置标准例:**
 
@@ -91,15 +104,19 @@ scene_game_list = true
 
 [powersave]
 margin = 3
+core_temp_thresh = 80000
 
 [balance]
 margin = 2
+core_temp_thresh = 90000
 
 [performance]
 margin = 1
+core_temp_thresh = 95000
 
 [fast]
 margin = 0
+core_temp_thresh = 95000
 ```
 
 ## **配置合并**
@@ -127,15 +144,17 @@ margin = 0
 ## **编译**
 
 ```bash
-# Ubuntu(NDK is required)
+# Ubuntu (NDK is required)
 apt install gcc-multilib git-lfs clang python3
 
-# ruff(python lints & format)
+# ruff (Python lints & format)
 pip install ruff
 
-# Rust
+# Rust (Nightly version is required)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+rustup default nightly
 rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
+rustup component add rust-src
 
 # Cargo-ndk
 cargo install cargo-ndk
@@ -146,6 +165,8 @@ cd fas-rs
 
 # Compile
 python3 ./make.py build --release
+# Use the `--nightly` option when building(Some nightly flags will be added to produce smaller artifacts)
+python3 ./make.py build --release --nightly
 ```
 
 ## **捐赠**

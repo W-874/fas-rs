@@ -1,23 +1,28 @@
 #!/bin/python3
-# Copyright 2023 shadow3aaa@gitbub.com
+# Copyright 2023-2024, shadow3 (@shadow3aaa)
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# This file is part of fas-rs.
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# fas-rs is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option)
+# any later version.
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# fas-rs is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along
+# with fas-rs. If not, see <https://www.gnu.org/licenses/>.
 
 import os
 import shutil
 from pathlib import Path
 from maketools.toolchains import Buildtools
 from maketools.misc import eprint
+import zipfile
+from datetime import datetime
 
 build_help_text = """\
 python3 ./make.py build:
@@ -141,6 +146,8 @@ def task(args):
 
     if release:
         cargo.arg("--release")
+        if nightly:
+            cargo.arg("-Z trim-paths")
     if verbose:
         cargo.arg("--verbose")
 
@@ -165,9 +172,16 @@ def task(args):
     shutil.copy2(bin, bin_module)
     tools.strip(bin_module)
 
-    if release:
-        output = Path("output").joinpath("fas-rs(release)")
-    else:
-        output = Path("output").joinpath("fas-rs(debug)")
-    shutil.make_archive(output, "zip", temp_dir)
+    build_time = datetime.now().strftime("%Y-%m-%d-%Hh%Mm%Ss")
+    build_type = "release" if release else "debug"
+    output = Path("output") / f"fas-rs_{build_type}_{build_time}"
+
+    with zipfile.ZipFile(
+        f"{output}.zip", "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9
+    ) as zipf:
+        for root, _, files in os.walk(temp_dir):
+            for file in files:
+                filepath = os.path.join(root, file)
+                arcname = os.path.relpath(filepath, temp_dir)
+                zipf.write(filepath, arcname)
     print("fas-rs build successfully: {}.zip".format(output))

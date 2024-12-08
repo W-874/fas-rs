@@ -1,21 +1,25 @@
-// Copyright 2023 shadow3aaa@gitbub.com
+// Copyright 2023-2024, shadow3 (@shadow3aaa)
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// This file is part of fas-rs.
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// fas-rs is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// fas-rs is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along
+// with fas-rs. If not, see <https://www.gnu.org/licenses/>.
 
 use std::{fs, io::Write};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use vergen::{BuildBuilder, CargoBuilder, Emitter, RustcBuilder, SysinfoBuilder};
 
 #[derive(Deserialize)]
 struct Package {
@@ -43,6 +47,8 @@ fn main() -> Result<()> {
     println!("cargo:rerun-if-changed=Cargo.lock");
     println!("cargo:rerun-if-changed=Cargo.toml");
     println!("cargo:rerun-if-changed=update");
+
+    vergen()?;
 
     let toml = fs::read_to_string("Cargo.toml")?;
     let data: CargoConfig = toml::from_str(&toml)?;
@@ -111,4 +117,18 @@ fn update_json(data: &CargoConfig) -> Result<()> {
     fs::write("update/update_en.json", en)?;
 
     Ok(())
+}
+
+fn vergen() -> Result<()> {
+    let build = BuildBuilder::all_build()?;
+    let cargo = CargoBuilder::all_cargo()?;
+    let rustc = RustcBuilder::all_rustc()?;
+    let si = SysinfoBuilder::all_sysinfo()?;
+
+    Emitter::default()
+        .add_instructions(&build)?
+        .add_instructions(&cargo)?
+        .add_instructions(&rustc)?
+        .add_instructions(&si)?
+        .emit()
 }

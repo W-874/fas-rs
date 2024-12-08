@@ -15,5 +15,13 @@
 // You should have received a copy of the GNU General Public License along
 // with fas-rs. If not, see <https://www.gnu.org/licenses/>.
 
-#![allow(unused_imports)]
-pub use super::{api, config::Config, node::Mode, Api, Extension, Scheduler};
+use std::{fs, path::Path};
+
+use crate::framework::Result;
+
+pub fn get_process_name(pid: i32) -> Result<String> {
+    let cmdline = Path::new("/proc").join(pid.to_string()).join("cmdline");
+    let cmdline = fs::read_to_string(cmdline)?;
+    let cmdline = cmdline.split(':').next().unwrap_or_default();
+    Ok(cmdline.trim_matches(['\0']).trim().to_string())
+}
